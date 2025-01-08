@@ -6,6 +6,9 @@ on:
       release_tag:
         required: true
         type: string
+      xray_core_version:
+        description: 'Xray core version or commit hash'
+        required: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -54,6 +57,9 @@ jobs:
          mkdir -p assets data
          bash gen_assets.sh download
          cp -v data/*.dat assets/
+         if [ -n '${{ github.event.inputs.xray_core_version }}' ]; then
+           go get github.com/xtls/xray-core@${{ github.event.inputs.xray_core_version }} || true
+         fi
          gomobile init
          go mod tidy
          gomobile bind -v -androidapi 21 -trimpath -ldflags='-s -w -buildid=' ./
